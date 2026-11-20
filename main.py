@@ -1,6 +1,7 @@
 # Expense Tracker Program Begins Here...
 
 import json
+import math
 import os
 
 FILENAME = "expenses.json"
@@ -21,14 +22,19 @@ def save_expenses(filename, expenses):
     try:
         with open(filename, "w") as file:
             json.dump(expenses, file, indent=4)
+        return True
     except IOError:
         print("Error: Could not save expenses to file.")
+        return False
 
 def add_expense(expenses):
     """Prompt user for details and add a new expense."""
     try:
         amount_input = input("Enter amount (₹): ").strip()
         amount = float(amount_input)
+        if not math.isfinite(amount):
+            print("Invalid amount. Please enter a valid number.")
+            return
         if amount < 0:
             print("Amount cannot be negative.")
             return
@@ -103,13 +109,17 @@ def main():
         elif choice == "4":
             spending_by_category(expenses)
         elif choice == "5":
-            save_expenses(FILENAME, expenses)
-            print("Expenses saved successfully. Goodbye!")
-            break
+            if save_expenses(FILENAME, expenses):
+                print("Expenses saved successfully. Goodbye!")
+                break
+            print("Your expenses were NOT saved. Fix the problem and try again.")
         else:
             print("Invalid choice. Please enter a number between 1 and 5.")
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except (KeyboardInterrupt, EOFError):
+        print("\nInterrupted. Unsaved expenses were not saved.")
 
 # Expense Tracker Program Ends Here...
